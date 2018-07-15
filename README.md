@@ -21,3 +21,7 @@ With all this done, just run:
 
     ./build_img 11.2-RELEASE
 
+For using with alternate AWS profiles, pass in as an evironment variable,
+e.g.:
+
+    env AWS_PROFILE=dev_vpc ./build_img 11.0-RELEASE
