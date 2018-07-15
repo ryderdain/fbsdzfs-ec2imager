@@ -5,7 +5,6 @@ To use:
 - Install packer
 - Install AWS cli tools
 - Set up user access keys on your AWS account
-- Clone this repo
 
 With all this done, just clone this repo and build your own image.
 
