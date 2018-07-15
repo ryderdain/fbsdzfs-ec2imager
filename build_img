@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Targeted version of FreeBSD
+FREEBSD_VERSION="${1}"; export FREEBSD_VERSION
+if [ -z "${FREEBSD_VERSION}" ]; then
+    echo "Usage:
+    $0 <FreeBSD Version>
+
+    Example:
+    $0 11.1-RELEASE
+    "
+    exit 1
+fi
+
+# Set up ssh keys for the builder to use (installed via user_data.sh)
+if [ ! -e "./build_tmp/temp_ssh_key" ]; then
+    echo "generating temporary ssh key for builder"
+    ## Tested only with OS's macOS, FreeBSD.
+    #  Switch to use flags `-t rsa -b 3072` for other systems.
+    ssh-keygen  -t ed25519 -N "" -f ./build_tmp/temp_ssh_key > /dev/null
+fi
+tmp_ssh_key=`cat ./build_tmp/temp_ssh_key.pub`
+sed "s%PUBLIC_SSH_KEY%$tmp_ssh_key%" ./user_data.tpl > ./build_tmp/user_data.sh
+
+# To use any other profile than "default", invoke this script with the
+# environment variable like "AWS_PROFILE=my_profile ..."
+env FREEBSD_VERSION="${1}" \
+    AWS_PROFILE="${AWS_PROFILE:-default}" \
+    PACKER_CACHE_DIR=/tmp/cache \
+    CHECKPOINT_DISABLE=1 \
+    packer build \
+        -var="aws_access_key_id=$(aws configure get aws_access_key_id)" \
+        -var="aws_secret_access_key=$(aws configure get aws_secret_access_key)" \
+        -var="region=$(aws configure get region)" \
+        ./fbsdzfs-base.json

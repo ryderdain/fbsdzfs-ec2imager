@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# PROVIDE: growzfs
+# BEFORE: sysctl
+# KEYWORD: firstboot
+
+# This allows us to distribute a image
+# and have it work on essentially any size drive.
+
+. /etc/rc.subr
+
+name="growzfs"
+desc="Grow root volume and partition to fill device"
+start_cmd="growzfs_start"
+stop_cmd=":"
+rcvar="growzfs_enable"
+
+growzfs_start ()
+{
+    echo "Growing root partition to fill device"
+    # Currently only working with one-device zpools. Will break on mirrors.
+    # Also assumes no labeling of GPT partitions. Hard to extract at the moment.
+    if (kldstat -m zfs -q); then 
+        if [ "$(zfs get -o value -H mountpoint $rootdev)" = "/" ]; then
+            poolname="${rootdev%%/*}"
+            zdevs="$(zpool status $poolname|grep -vE "(^$|:|$poolname)"| \
+                awk -F\  '{
+                    if ("ONLINE" == $2)
+                        print $1;
+                }')"
+        fi
+        zpool set autoexpand=on "$poolname"
+    else
+        echo "Not used as a ZFS device"
+        return
+    fi
+
+    for rawdev in $zdevs
+    do
+        sysctl -b kern.geom.conftxt | awk '
+    {
+        lvl=$1
+        device[lvl] = $3
+        type[lvl] = $2
+        idx[lvl] = $7
+        fstype[lvl] = $11
+        parttype[lvl] = $13
+        if (dev == $3) {
+            for (i = 1; i <= lvl; i++) {
+                # resize
+                if (type[i] == "PART") {
+                    pdev = device[i - 1]
+                    cmd[i] = "gpart resize -i " idx[i] " " pdev
+                    if (parttype[i] == "GPT")
+                        cmd[i] = "gpart recover " pdev " ; " cmd[i]
+                } else if (type[i] == "LABEL") {
+                    continue
+                } else {
+                    print "unhandled type: " type[i]
+                    exit 1
+                }
+            }
+            for (i = 1; i <= lvl; i++) {
+                if (cmd[i])
+                    system(cmd[i])
+            }
+            exit 0
+        }
+    }' dev="$rawdev"
+        zpool online -e $poolname $rawdev $rawdev
+    done
+}
+
+load_rc_config $name
+run_rc_command "$1"
+

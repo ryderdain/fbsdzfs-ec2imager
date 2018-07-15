@@ -1,0 +1,96 @@
+{
+  "variables": {
+      "username": "{{env `USER`}}",
+      "freebsd_version": "{{env `FREEBSD_VERSION`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebssurrogate",
+      "source_ami_filter": {
+        "filters": {
+          "product-code": "b5c1v52b2tam17wi8krmj4e77",
+          "description": "FreeBSD {{user `freebsd_version`}}-amd64"
+        },
+        "owners": ["aws-marketplace"],
+        "most_recent": true
+      },
+      "region": "{{user `region`}}",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "instance_type": "t2.large",
+
+      "communicator": "ssh",
+      "ssh_username": "packer",
+      "ssh_private_key_file": "build_tmp/temp_ssh_key",
+
+      "force_deregister": true,
+      "force_delete_snapshot": true,
+
+      "ami_name": "fbsdzfs-{{user `freebsd_version`}}-base-{{isotime \"20060102\"}}",
+      "ami_virtualization_type": "hvm",
+      "tags": {
+        "Name": "fbsdzfs-{{user `freebsd_version`}}-ami-{{isotime \"20060102\"}}",
+        "freebsd_version": "{{user `freebsd_version`}}"
+      },
+
+      "user_data_file": "build_tmp/user_data.sh",
+      "run_tags": {
+        "User": "{{user `username`}}",
+        "Name": "fbsdzfs-{{user `freebsd_version`}}-imagebuilder-{{isotime \"20060102.1504\"}}"
+      },
+      "run_volume_tags": {
+        "Name": "fbsdzfs-{{user `freebsd_version`}}-imagebuilder_root-{{isotime \"20060102.1504\"}}"
+      },
+      "launch_block_device_mappings" : [
+        {
+          "volume_type" : "gp2",
+          "device_name" : "/dev/sdb",
+          "delete_on_termination" : true,
+          "volume_size" : 10
+        }
+      ],
+      "ami_root_device": {
+        "source_device_name": "/dev/sdb",
+        "device_name": "/dev/sda1",
+        "delete_on_termination": true,
+        "volume_size": 16,
+        "volume_type": "gp2"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; sudo env FREEBSD_VERSION={{user `freebsd_version`}} {{ .Vars }} {{ .Path }}",
+      "scripts": [
+        "scripts/zfsinstall.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; sudo cp -v {{ .Path }} /mnt/tmp/; sudo env FREEBSD_VERSION={{user `freebsd_version`}} {{ .Vars }} SHELL=/bin/sh chroot /mnt {{ .Path }}",
+      "scripts": [
+        "scripts/apply_base_configuration.sh",
+        "scripts/host_pkg_install.sh"
+      ]
+    },
+    {
+      "type": "shell-local",
+      "command": "tar -C ./files -czf ./build_tmp/files.tgz etc usr var"
+    },
+    {
+      "type": "file",
+      "source": "./build_tmp/files.tgz",
+      "destination": "/mnt/tmp/",
+      "generated": true
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; sudo cp -v {{ .Path }} /mnt/tmp/; sudo {{ .Vars }} SHELL=/bin/sh chroot /mnt {{ .Path }}",
+      "inline": [
+        "tar -C / -oxzf /tmp/files.tgz",
+        "rm /tmp/files.tgz"
+      ]
+    }
+  ]
+}
