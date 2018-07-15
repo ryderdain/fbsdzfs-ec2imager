@@ -12,9 +12,9 @@ Note
   but this is the default for friendly use). 
 
 For FreeBSD 10 Releases:
-           "product-code": "dxlde6kbuza4cb7ero2ny5lqj",
+  - "product-code": "dxlde6kbuza4cb7ero2ny5lqj",
 For FreeBSD 11 Releases:
-           "product-code": "b5c1v52b2tam17wi8krmj4e77",
+  - "product-code": "b5c1v52b2tam17wi8krmj4e77",
 
 With all this done, just run:
 
