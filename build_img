@@ -12,6 +12,12 @@ if [ -z "${FREEBSD_VERSION}" ]; then
     exit 1
 fi
 
+# Enable debug mode via environment
+if [ $DEBUG ]
+then
+    debug_flag='-debug'; export debug_flag
+fi
+
 # Set up ssh keys for the builder to use (installed via user_data.sh)
 if [ ! -e "./build_tmp/temp_ssh_key" ]; then
     echo "generating temporary ssh key for builder"
@@ -32,4 +38,4 @@ env FREEBSD_VERSION="${1}" \
         -var="aws_access_key_id=$(aws configure get aws_access_key_id)" \
         -var="aws_secret_access_key=$(aws configure get aws_secret_access_key)" \
         -var="region=$(aws configure get region)" \
-        ./fbsdzfs-base.json
+        ${debug_flag} ./fbsdzfs-${PURPOSE:-base}.json

@@ -15,9 +15,9 @@ With all this done, just clone this repo and build your own image.
 For using with alternate AWS profiles, pass in as an evironment variable,
 e.g.:
 
-    env AWS_PROFILE=dev_vpc ./build_img 11.0-RELEASE
+    env AWS_PROFILE=leeron ./build_img 11.0-RELEASE
 
-## Notes
+**Notes**
 
   The product-code filter for FreeBSD in the aws-marketplace differs based
   on the major relase version. Add the following line as necessary to the
@@ -27,6 +27,14 @@ e.g.:
   - For FreeBSD 10 Releases: "product-code": "dxlde6kbuza4cb7ero2ny5lqj"
   - For FreeBSD 11 Releases: "product-code": "b5c1v52b2tam17wi8krmj4e77"
 
+## Advanced Builder: ZFS Jailhost
+
+To build a ZFS image with ezjail installed on the host, add the additional
+environment parameter 'PURPOSE=ezjail'.
+
+    env AWS_PROFILE=leeron PURPOSE=ezjail ./build_img 11.0-RELEASE
+
+This will use the alternate packer script fbsdzfs-ezjail.json.
 
 ## Setting Up An AWS Account
 
@@ -72,7 +80,7 @@ Step three is only a quick review of the user you're about to generate. If anyth
 
 Step four shows you the access credentials for the new user. **This is the only time these credentials are available**, so we'll pause here and take you through the local side of configuring your new user's access rights. 
 
-If you close the browser window or forget to copy the user permissions, you'll need to navigate in the IAM Dashboard to Users >> <your username> >> Security Credentials, and update both the user's Console password, revoke the old Access Key, and generate a new one.
+If you close the browser window or forget to copy the user permissions, you'll need to navigate in the IAM Dashboard to Users >> \<your username\> >> Security Credentials, and update both the user's Console password, revoke the old Access Key, and generate a new one.
 
 ### Configuring Your AWS CLI User
 
