@@ -49,6 +49,12 @@ This will use the alternate packer script fbsdzfs-ezjail.json.
   They can be tried by setting 'PURPOSE=ejzail-testjail' instead to use the
   alternative builder.
 
+----
+
+# Getting Started With AWS
+
+This "mini-guide" is here to take you from zero to running the packer script in this repo.
+
 ## Setting Up An AWS Account
 
 Since the signup procedure for an AWS account is so straightforward, I’m not
@@ -159,12 +165,14 @@ this point:
   Naming conventions may vary.
 - If you have Python's `virtualenv` installed, set up a virtualenv and run the
   awscli from there. For instance, after running git-clone on the the
-  fbsdzfs-ec2imager, you could easily just do this:
+  fbsdzfs-ec2imager, you could easily just do this.
+
 
     virtualenv fbsdzfs-ec2imager
     cd ./fbsdzfs-ec2imager
     source bin/activate
     pip install awscli
+
 
 #### Configure AWS CLI With Access Keys
     
