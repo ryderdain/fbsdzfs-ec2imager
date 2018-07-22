@@ -8,7 +8,7 @@
       "type": "amazon-ebssurrogate",
       "source_ami_filter": {
         "filters": {
-          "product-code": "b5c1v52b2tam17wi8krmj4e77",
+          "product-code": "dxlde6kbuza4cb7ero2ny5lqj",
           "description": "FreeBSD {{user `freebsd_version`}}-amd64"
         },
         "owners": ["aws-marketplace"],
