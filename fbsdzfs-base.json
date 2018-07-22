@@ -17,7 +17,7 @@
       "region": "{{user `region`}}",
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
-      "instance_type": "t2.large",
+      "instance_type": "t2.micro",
 
       "communicator": "ssh",
       "ssh_username": "packer",
