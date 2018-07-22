@@ -168,10 +168,10 @@ this point:
   fbsdzfs-ec2imager, you could easily just do this.
 
 
-    virtualenv fbsdzfs-ec2imager
-    cd ./fbsdzfs-ec2imager
-    source bin/activate
-    pip install awscli
+        virtualenv fbsdzfs-ec2imager
+        cd ./fbsdzfs-ec2imager
+        source bin/activate
+        pip install awscli
 
 
 #### Configure AWS CLI With Access Keys
