@@ -1,0 +1,38 @@
+--- /usr/local/bin/ezjail-admin	2018-06-23 19:47:35.000000000 +0000
++++ /tmp/ezjail-admin	2018-07-23 09:29:54.897403000 +0000
+@@ -286,7 +286,7 @@
+   # directories with permission 0700 which is bad
+   mkdir -p "${ezjail_jailbase}/usr"
+   for dir in ${ezjail_dirlist}; do
+-    find ${dir} | cpio -d -p -v "${ezjail_jailbase}" || exerr "Error: Installation of ${dir} failed."
++    find ${dir} | cpio --insecure -d -p -v "${ezjail_jailbase}" || exerr "Error: Installation of ${dir} failed."
+     chflags -R noschg ${dir}; rm -r ${dir}; ln -s /basejail/${dir} ${dir}
+   done
+   mkdir basejail
+@@ -751,7 +751,7 @@
+       [ -z "${ezjail_keepsnapshot}" ] && /sbin/zfs destroy ${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_
+       /sbin/zfs destroy ${ezjail_jailzfs}/newjail@_vanilla_newjail_
+     else
+-      mkdir -p "${ezjail_rootdir}" && cd "${ezjail_jailtemplate}" && find . | cpio -p -v "${ezjail_rootdir}" > /dev/null
++      mkdir -p "${ezjail_rootdir}" && cd "${ezjail_jailtemplate}" && find . | cpio --insecure -p -v "${ezjail_rootdir}" > /dev/null
+     fi
+ 
+     [ $? -eq 0 ] || detach_images || exerr "Error: Could not copy template jail."
+@@ -777,7 +777,7 @@
+     installed_flavours=0
+     for ezjail_flavour in ${ezjail_flavours}; do
+       # install files and config to new jail
+-      cd "${ezjail_flavours_dir}/${ezjail_flavour}" && find . | cpio -p -u -v "${ezjail_rootdir}" > /dev/null
++      cd "${ezjail_flavours_dir}/${ezjail_flavour}" && find . | cpio --insecure -p -u -v "${ezjail_rootdir}" > /dev/null
+       [ $? -eq 0 ] || echo "Warning: Could not fully install flavour ${ezjail_flavour}."
+ 
+       # if the packages are links and not files we have to copy them now
+@@ -1293,7 +1293,7 @@
+   # TODO: This assumes no files have been deleted from when the jail was initially created. Safe assumption for now.
+   # TODO: This assumes no files have been renamed from when the jail was initially created. Not so sure.
+   /sbin/zfs diff -H "${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_" "${ezjail_parentzfs}/${ezjail_hostname}" | \
+-    grep -E "^[M+]" | cut -f 2 | sed -E s:"^${ezjail_rootdir}/?":: | cpio -d -m -p -v "${ezjail_flavours_dir}/${ezjail_flavour}"
++    grep -E "^[M+]" | cut -f 2 | sed -E s:"^${ezjail_rootdir}/?":: | cpio --insecure -d -m -p -v "${ezjail_flavours_dir}/${ezjail_flavour}"
+ 
+ ;;
+ ######################## ezjail-admin SNAPSHOT ########################

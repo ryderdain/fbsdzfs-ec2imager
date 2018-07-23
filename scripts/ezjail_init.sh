@@ -19,6 +19,16 @@ ezjail_use_zfs_for_jails="YES"
 ezjail_jailzfs="zroot/jails"
 EOF
 
+# Following v10.3-RELEASE, ezjail-admin install breaks due
+# to cpio no longer extracting through symlinks. This is not a
+# portable solution, but until cpio is fixed applying the patch
+# here will correct the error.
+qbsd_github=https://github.com/queerbsd
+repo_rawfiles=fbsdzfs-ec2imager/raw/master/fetch
+cpio_patch=ezjail-admin_cpio.patch
+curl -L -o /tmp/$cpio_patch $qbsd_github/$repo_rawfiles/$cpio_patch
+patch /usr/local/bin/ezjail-admin /tmp/$cpio_patch
+
 # We don't need to set an alternative freebsd_version here.
 ezjail-admin install 
 #ezjail-admin install 2>/dev/null

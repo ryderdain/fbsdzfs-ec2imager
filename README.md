@@ -27,25 +27,35 @@ e.g.:
   - For FreeBSD 10 Releases: "product-code": "dxlde6kbuza4cb7ero2ny5lqj"
   - For FreeBSD 11 Releases: "product-code": "b5c1v52b2tam17wi8krmj4e77"
 
+  By default we use FreeBSD 11, and the product-code ID in the marketplace.
+
 ## Advanced Builder: ZFS Jailhost
 
 To build a ZFS image with ezjail installed on the host, add the additional
 environment parameter 'PURPOSE=ezjail'.
 
-    env AWS_PROFILE=leeron PURPOSE=ezjail ./build_img 10.3-RELEASE
+    env AWS_PROFILE=leeron PURPOSE=ezjail ./build_img 11.2-RELEASE
 
 This will use the alternate packer script fbsdzfs-ezjail.json.
 
 **Notes**
 
-  **ONLY WORKING ON 10.3-RELEASE**
-
-  The method to install ezjail's basejail requires unpacking hardlinks through
+- The method to install ezjail's basejail requires unpacking hardlinks through
   a symlink, possibly addressed previously. For some reason this error has been
   re-introduced as of 10.4-RELEASE, which means the method is broken and the
   ezjail base installation must be repeated before the jails will start.
 
-  See the scripts `create_jail_example.sh` and `jail_example_pkg_install.sh`.
+  Error comes from cpio in affected versions:
+
+        cpio: bin: Cannot extract through symlink /usr/jails/basejail/bin
+
+  We work around this by pulling the patch from this selfsame github repo at
+  runtime, and patch the builder instance's /usr/local/bin/ezjail-admin script
+  to run cpio with the '--insecure' flag. Note that this won't affect the final
+  build, this is only used the one time, during the surrogate builder's install
+  procedure for ezjail.
+
+- See the scripts `create_jail_example.sh` and `jail_example_pkg_install.sh`.
   They can be tried by setting 'PURPOSE=ejzail-testjail' instead to use the
   alternative builder.
 
