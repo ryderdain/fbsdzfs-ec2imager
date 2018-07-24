@@ -76,7 +76,7 @@
     },
     {
       "type": "shell-local",
-      "command": "tar -C ./files -czf ./build_tmp/files.tgz etc usr var"
+      "command": "tar -C ./files -czf ./build_tmp/files.tgz etc"
     },
     {
       "type": "file",
