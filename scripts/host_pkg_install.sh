@@ -4,7 +4,8 @@
 ################################################################################
 
 # Packages which are pre-installed
-BASE_PACKAGES="ec2-scripts"
+BASE_PACKAGES="ec2-scripts firstboot-freebsd-update firstboot-growfs firstboot-pkgs"
+
 
 ################################################################################
 # PACKAGE INSTALLATION
